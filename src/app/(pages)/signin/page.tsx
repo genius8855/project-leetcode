@@ -15,7 +15,7 @@ const page: React.FC<SigninProps> = () => {
     const [inputs, setInputs] = useState({ email: "", password: "" });
     const [signInWithEmailAndPassword, user, loading, error,] = useSignInWithEmailAndPassword(auth);
     const router = useRouter();
-
+    //change
     useEffect(() => {
         if (error) alert(error.message);
     }, [error]);
