@@ -1,10 +1,10 @@
 import { initializeApp, getApp, getApps } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
-    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+	apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
 	authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
 	projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
 	storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
@@ -13,10 +13,15 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = !getApps.length ? initializeApp(firebaseConfig) : getApp();
-const analytics = getAnalytics(app);
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+
+// Ensure Analytics runs only on the client
+let analytics;
+if (typeof window !== "undefined") {
+	analytics = getAnalytics(app);
+}
 
 const auth = getAuth(app);
 const fireStore = getFirestore(app);
 
-export {auth, fireStore, app};
+export { auth, fireStore, app, analytics };

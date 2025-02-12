@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@codemirror/lang-cpp": "^6.0.2",
     "@codemirror/lang-javascript": "^6.2.2",
     "@radix-ui/react-dialog": "^1.1.6",
     "@uiw/codemirror-theme-vscode": "^4.23.8",

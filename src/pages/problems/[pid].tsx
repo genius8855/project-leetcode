@@ -1,6 +1,6 @@
 import Topbar from "@/app/(components)/Topbar";
 import Workspace from "@/app/(components)/Workspace/Workspace";
-// import useHashMounted from "@/hooks"
+// import useHashMounted from "@/hooks/useHasMounted"
 import { problems } from "@/utils/problems";
 import { Problem } from "@/utils/types/problem";
 import React from "react";
@@ -15,7 +15,7 @@ const ProblemPage: React.FC<ProblemPageProps> = ({ problem }) => {
 	// if (!hasMounted) return null;
 
 	return (
-		<div>
+		<div className="h-screen overflow-hidden flex flex-col">
 			<Topbar problemPage />
 			<Workspace problem={problem} />
 		</div>
