@@ -1,4 +1,5 @@
-import React from 'react';
+"use client";
+import React, { useState } from 'react';
 import PreferenceNav from './PreferenceNav/PreferenceNav';
 import Split from 'react-split';
 import CodeMirror from "@uiw/react-codemirror";
@@ -13,6 +14,8 @@ type PlayGroundProps = {
 };
 
 const PlayGround:React.FC<PlayGroundProps> = ({problem}) => {
+
+	const [activeTestCase,setActiveTestCase] = useState(0);
     
     return (
         <div className='flex flex-col bg-dark-layer-1 relative'>
@@ -41,11 +44,12 @@ const PlayGround:React.FC<PlayGroundProps> = ({problem}) => {
 							<div
 								className='mr-2 items-start mt-2 '
 								key={example.id}
+								onClick={() => setActiveTestCase(index)}
 							>
 								<div className='flex flex-wrap items-center gap-y-4'>
 									<div
 										className={`font-medium items-center transition-all focus:outline-none inline-flex bg-dark-fill-3 hover:bg-dark-fill-2 relative rounded-lg px-4 py-1 cursor-pointer whitespace-nowrap
-										${ "text-white"}
+										${activeTestCase === index ? "text-white" : "text-gray-500"}
 									`}
 									>
 										Case {index + 1}
@@ -58,11 +62,11 @@ const PlayGround:React.FC<PlayGroundProps> = ({problem}) => {
 					<div className='font-semibold my-4'>
 						<p className='text-sm font-medium mt-4 text-white'>Input:</p>
 						<div className='w-full cursor-text rounded-lg border px-3 py-[10px] bg-dark-fill-3 border-transparent text-white mt-2'>
-							nums=[1,2,3,4]  target=7
+							{problem.examples[activeTestCase].inputText}
 						</div>
 						<p className='text-sm font-medium mt-4 text-white'>Output:</p>
 						<div className='w-full cursor-text rounded-lg border px-3 py-[10px] bg-dark-fill-3 border-transparent text-white mt-2'>
-							[2,3]
+							{problem.examples[activeTestCase].outputText}
 						</div>
 					</div>
 				</div>
