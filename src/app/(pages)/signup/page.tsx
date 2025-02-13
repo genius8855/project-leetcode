@@ -4,8 +4,10 @@ import Navbar from '@/app/(components)/Navbar';
 import Link from 'next/link';
 import { useState,useEffect } from 'react';
 import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
-import { auth } from '@/firebase/firebase';
+import { auth, fireStore } from '@/firebase/firebase';
 import { useRouter } from 'next/navigation';
+import { doc, Firestore, setDoc } from 'firebase/firestore';
+import { toast } from 'react-toastify';
 
 type SignupProps = {
 
@@ -29,11 +31,26 @@ const page: React.FC<SignupProps> = () => {
         e.preventDefault();
         if(!inputs.email || !inputs.displayName || !inputs.password) return alert("Please fill all fields!");
         try {
+            toast.loading("Creating your account",{position:"top-center",toastId:"loadingToast"})
             const newUser = await createUserWithEmailAndPassword(inputs.email, inputs.password);
             if (!newUser) return;
+            const userData = {
+                uid: newUser.user.uid,
+                email: newUser.user.email,
+                displayName: inputs.displayName,
+                createdAt: Date.now(),
+                updatedAt: Date.now(),
+                likedProblems: [],
+                dislikedProblems: [],
+                solvedProblems: [],
+                starredProblems: [],
+            }
+            await setDoc(doc(fireStore,"users",newUser.user.uid),userData);
             router.push('/signin');
         } catch (error: any) {
-            alert(error.message);
+            toast.error(error.message,{position:"top-center"});
+        }finally {
+            toast.dismiss("loadingToast");
         }
     }
 

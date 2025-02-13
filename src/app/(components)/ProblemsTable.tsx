@@ -17,6 +17,7 @@ type ProblemsTableProps = {
 const ProblemsTable: React.FC<ProblemsTableProps> = () => {
 
     const [data, setData] = useState<{ id: string;[key: string]: any }[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -25,6 +26,7 @@ const ProblemsTable: React.FC<ProblemsTableProps> = () => {
                 const querySnapshot = await getDocs(q);
                 const items = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 setData(items);
+                setLoading(false);
             } catch (error) {
                 console.error("Error fetching Firestore data:", error);
             }
@@ -46,7 +48,9 @@ const ProblemsTable: React.FC<ProblemsTableProps> = () => {
 
     return (
         <>
-            <tbody className='text-white'>
+            {loading && <div>loading..</div>}
+            
+            {!loading && <tbody className='text-white'>
                 {data.map((problem, idx) => {
                     const difficultyColor =
                         problem.difficulty === "Easy"
@@ -61,12 +65,21 @@ const ProblemsTable: React.FC<ProblemsTableProps> = () => {
                             </th>
                             <td className='px-6 py-4'>
 
-                                <Link
-                                    className='hover:text-blue-600 cursor-pointer'
-                                    href={`/problems/${problem.id}`}
-                                >
-                                    {problem.title}
-                                </Link>
+                                {problem.link ? (
+                                    <Link
+                                        href={problem.link} target='_blank'
+                                        className='hover:text-blue-600 cursor-pointer'
+                                    >
+                                        {problem.title}
+                                    </Link>
+                                ) : (
+                                    <Link
+                                        className='hover:text-blue-600 cursor-pointer'
+                                        href={`/problems/${problem.id}`}
+                                    >
+                                        {problem.title}
+                                    </Link>
+                                )}
                             </td>
                             <td className={`px-6 py-4 ${difficultyColor}`}>{problem.difficulty}</td>
                             <td className={"px-6 py-4"}>{problem.category}</td>
@@ -86,7 +99,7 @@ const ProblemsTable: React.FC<ProblemsTableProps> = () => {
                         </tr>
                     );
                 })}
-            </tbody>
+            </tbody>}
             {
                 youtubePlayer.isOpen && (<tfoot className='fixed top-0 left-0 h-screen w-screen flex items-center justify-center'>
                     <div
