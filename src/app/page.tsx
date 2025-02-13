@@ -1,8 +1,15 @@
+"use client";
 import Image from "next/image";
 import Topbar from "./(components)/Topbar";
 import ProblemsTable from "./(components)/ProblemsTable";
+import useHasMounted from "./(components)/Hooks/useHashMounted";
 
 export default function Home() {
+
+  const hasMounted = useHasMounted();
+
+  if(!hasMounted) return null;
+  
   return (
     <main className="min-h-screen bg-dark-layer-2">
       <Topbar />

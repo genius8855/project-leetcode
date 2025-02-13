@@ -1,14 +1,18 @@
-"use client"
+"use client";
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation'; // For App Router
+import { useSearchParams } from 'next/navigation';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '@/firebase/firebase';
 import Logout from './Logout';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { BsList } from 'react-icons/bs';
 import Timer from './Timer';
+import { problems } from './Problems';
+import { Problem } from '@/utils/types/problem';
+import useHasMounted from './Hooks/useHashMounted';
 
 type TopbarProps = {
     problemPage?: boolean;
@@ -16,12 +20,62 @@ type TopbarProps = {
 
 const Topbar: React.FC<TopbarProps> = ({ problemPage }) => {
 
+    // const hasMounted = useHasMounted();
+
+    // if(hasMounted) return null;
+
     const [user] = useAuthState(auth);
     const router = useRouter();
+    const searchParams = useSearchParams();
+
+    const handleProblemChange = (isForward: boolean) => {
+        // const searchParams = useSearchParams(); // Use useSearchParams to get the query params
+        console.log(problems)
+    
+        if (!searchParams) {
+            console.error("Search params are not available.");
+            return;
+        }
+    
+        const pid = searchParams.get('pid'); // Get current problem ID from query
+    
+        if (!pid) {
+            console.error("Problem ID (pid) is missing.");
+            return;
+        }
+    
+        // Filter problems to only include those with order 1-5
+        const filteredProblems = problems.filter((problem) => problem.order >= 1 && problem.order <= 5);
+    
+        // Using a Map to lookup the problem by its ID, which is more optimized
+        const problemMap = new Map(filteredProblems.map((problem) => [problem.id, problem]));
+    
+        // Check if the current problem exists in the filtered problems
+        const currentProblem = problemMap.get(pid as string);
+    
+        if (!currentProblem) {
+            console.error("Problem not found within range 1-5:", pid);
+            return;
+        }
+    
+        const direction = isForward ? 1 : -1;
+        const nextProblemOrder = currentProblem.order + direction;
+    
+        // Find the next problem within the range using the order
+        const nextProblem = filteredProblems.find((problem) => problem.order === nextProblemOrder) || 
+                            filteredProblems.find((problem) => problem.order === (isForward ? 1 : 5));
+    
+        if (nextProblem) {
+            // Use router.push for navigation
+            router.push(`/problems/${nextProblem.id}`);
+        }
+    };
+
+
 
     return (
         <nav className='relative flex h-[50px] w-full shrink-0 items-center px-5 bg-dark-layer-1 text-dark-gray-7  '>
-            <div className={`flex w-full items-center justify-between  ${!problemPage ? "max-w-[1200px] mx-auto" : "px-2 md:px-4" }`}>
+            <div className={`flex w-full items-center justify-between  ${!problemPage ? "max-w-[1200px] mx-auto" : "px-2 md:px-4"}`}>
                 <Link href='/' className='h-[22px] flex-1 '>
                     <img src='/logo-full.png' alt='Logo' className='h-full' />
                 </Link>
@@ -30,6 +84,7 @@ const Topbar: React.FC<TopbarProps> = ({ problemPage }) => {
                     <div className='flex items-center gap-4 flex-1 justify-center'>
                         <div
                             className='flex items-center justify-center rounded bg-dark-fill-3 hover:bg-dark-fill-2 h-8 w-8 cursor-pointer'
+                            onClick={() => handleProblemChange(false)}
                         >
                             <FaChevronLeft />
                         </div>
@@ -44,6 +99,7 @@ const Topbar: React.FC<TopbarProps> = ({ problemPage }) => {
                         </Link>
                         <div
                             className='flex items-center justify-center rounded bg-dark-fill-3 hover:bg-dark-fill-2 h-8 w-8 cursor-pointer'
+                            onClick={() => handleProblemChange(true)}
                         >
                             <FaChevronRight />
                         </div>

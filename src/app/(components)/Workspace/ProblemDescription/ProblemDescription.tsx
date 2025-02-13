@@ -1,3 +1,4 @@
+"use client";
 import { DBProblem, Problem } from '@/utils/types/problem';
 import React, { use, useEffect, useRef, useState } from 'react';
 import { AiFillDislike, AiFillLike, AiFillStar, AiOutlineLoading3Quarters } from 'react-icons/ai';
@@ -6,7 +7,7 @@ import { TiStarOutline } from "react-icons/ti";
 import { auth, fireStore, } from "@/firebase/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { problems } from '../../Problems';
-import { doc, getDoc, runTransaction } from 'firebase/firestore';
+import { arrayRemove, arrayUnion, doc, getDoc, runTransaction, updateDoc } from 'firebase/firestore';
 import RectangleSkeleton from '../../Skeletons/RectangleSkeleton';
 import CircleSkeleton from '../../Skeletons/CircleSkeleton';
 import { toast } from 'react-toastify';
@@ -20,6 +21,7 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
 
 	const { currentProblem, setCurrentProblem, loading, problemDifficultyClass } = useGetCurrentProblem(problem.id);
 	const {liked, disliked, starred, solved, setData} = useGetUsersDataOnProblem(problem.id);
+	const [updating, setUpdating] = useState(false);
 	const [user] = useAuthState(auth);
 
 
@@ -28,6 +30,7 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
 			toast.error("Please logged in to like the problem",{position:"top-center",theme:"dark"});
 			return;
 		}
+		setUpdating(true);
 
 		await runTransaction(fireStore,async(transaction) => {
 			const userRef = doc(fireStore,"users",user.uid);
@@ -44,7 +47,7 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
 						likes:problemDoc.data().likes-1
 					})
 
-					setCurrentProblem(prev => ({...prev, likes: prev.likes-1}));
+					setCurrentProblem((prev) => (prev ? { ...prev, likes: prev.likes - 1 } : null));
 					setData(prev => ({...prev,liked:false}));
 				}
 				else if(disliked) {
@@ -74,6 +77,7 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
 				}
 			}
 		})
+		setUpdating(false);
 	}
 
 	const handleDisLike = async () => {
@@ -81,7 +85,7 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
 			toast.error("Please logged in to like the problem",{position:"top-center",theme:"dark"});
 			return;
 		}
-
+		setUpdating(true);
 		await runTransaction(fireStore,async(transaction) => {
 			const userRef = doc(fireStore,"users",user.uid);
 			const problemRef = doc(fireStore,"problems",problem.id);
@@ -97,7 +101,7 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
 						dislikes:problemDoc.data().dislikes-1
 					})
 
-					setCurrentProblem(prev => ({...prev, dislikes: prev.dislikes-1}));
+					setCurrentProblem((prev) => (prev ? { ...prev, dislikes: prev.dislikes - 1 } : null));
 					setData(prev => ({...prev,disliked:false}));
 				}
 				else if(liked) {
@@ -126,9 +130,31 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
 					setData((prev) => ({ ...prev, disliked: true }));
 				}
 			}
-		})
+		});
+		setUpdating(false);
 	}
-	
+
+	const handleStar = async () => {
+		if(!user) {
+			toast.error("Please logged in to mark it starred",{position:"top-center",theme:"dark"});
+			return;
+		}
+		setUpdating(true);
+		const userRef = doc(fireStore,"users",user.uid);
+		if(!starred) {
+			await updateDoc(userRef, {
+				starredProblems: arrayUnion(problem.id),
+			});
+			setData((prev) => ({ ...prev, starred: true }));
+		}
+		else {
+			await updateDoc(userRef, {
+				starredProblems: arrayRemove(problem.id),
+			});
+			setData((prev) => ({ ...prev, starred: false }));
+		}
+		setUpdating(false);
+	};
 
 	return (
 		<div className='bg-dark-layer-1'>
@@ -152,18 +178,16 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
 									className={` inline-block rounded-[21px] bg-opacity-[.15] px-2.5 py-1 text-xs font-medium capitalize ${problemDifficultyClass} `}
 								>{currentProblem?.difficulty}
 								</div>
-								{(
+								{solved && 
 									<div className='rounded p-[3px] ml-4 text-lg transition-colors duration-200 text-green-s text-dark-green-s'>
 										<BsCheck2Circle />
 									</div>
-								)}
+								}
 								<div
 									className='flex items-center cursor-pointer hover:bg-dark-fill-3 space-x-1 rounded p-[3px]  ml-4 text-lg transition-colors duration-200 text-dark-gray-6'
 									onClick={handleLike}
 								>
-									{/* { <AiFillLike className='text-dark-blue-s' />} */}
-									{<AiFillLike />}
-									{/* {<AiOutlineLoading3Quarters className='animate-spin' />} */}
+									{updating ? <AiOutlineLoading3Quarters className='animate-spin' /> : liked ?  <AiFillLike className='text-dark-blue-s' /> : <AiFillLike />}
 
 									<span className='text-xs'>{currentProblem?.likes}</span>
 								</div>
@@ -171,18 +195,16 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
 									className='flex items-center cursor-pointer hover:bg-dark-fill-3 space-x-1 rounded p-[3px]  ml-4 text-lg transition-colors duration-200 text-green-s text-dark-gray-6'
 									onClick={handleDisLike}
 								>
-									{/* {<AiFillDislike className='text-dark-blue-s' />} */}
-									{<AiFillDislike />}
-									{/* {<AiOutlineLoading3Quarters className='animate-spin' />} */}
+									{}
+									{updating ? <AiOutlineLoading3Quarters className='animate-spin' /> : disliked ? <AiFillDislike className='text-dark-blue-s' /> : <AiFillDislike />}
 
 									<span className='text-xs'>{currentProblem?.dislikes}</span>
 								</div>
 								<div
 									className='cursor-pointer hover:bg-dark-fill-3  rounded p-[3px]  ml-4 text-xl transition-colors duration-200 text-green-s text-dark-gray-6 '
+									onClick={handleStar}
 								>
-									{/* {<AiFillStar className='text-dark-yellow' />} */}
-									{<TiStarOutline />}
-									{/* {<AiOutlineLoading3Quarters className='animate-spin' />} */}
+									{updating ? <AiOutlineLoading3Quarters className='animate-spin' /> : starred ? <AiFillStar className='text-dark-yellow' /> : <TiStarOutline />}
 								</div>
 							</div>
 						)}
