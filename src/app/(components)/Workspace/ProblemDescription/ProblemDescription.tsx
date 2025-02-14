@@ -14,10 +14,11 @@ import { toast } from 'react-toastify';
 
 
 type ProblemDescriptionProps = {
-	problem: Problem
+	problem: Problem;
+	_solved: boolean;
 };
 
-const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
+const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem,_solved }) => {
 
 	const { currentProblem, setCurrentProblem, loading, problemDifficultyClass } = useGetCurrentProblem(problem.id);
 	const {liked, disliked, starred, solved, setData} = useGetUsersDataOnProblem(problem.id);
@@ -178,10 +179,11 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
 									className={` inline-block rounded-[21px] bg-opacity-[.15] px-2.5 py-1 text-xs font-medium capitalize ${problemDifficultyClass} `}
 								>{currentProblem?.difficulty}
 								</div>
-								{solved && 
+								{(solved || _solved) &&
 									<div className='rounded p-[3px] ml-4 text-lg transition-colors duration-200 text-green-s text-dark-green-s'>
 										<BsCheck2Circle />
 									</div>
+									
 								}
 								<div
 									className='flex items-center cursor-pointer hover:bg-dark-fill-3 space-x-1 rounded p-[3px]  ml-4 text-lg transition-colors duration-200 text-dark-gray-6'

@@ -7,14 +7,18 @@ import { BsCheckCircle } from 'react-icons/bs';
 import { IoClose } from 'react-icons/io5';
 import YouTube from 'react-youtube';
 import { useEffect } from "react";
-import { fireStore } from '@/firebase/firebase';
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { auth, fireStore } from '@/firebase/firebase';
+import { collection, doc, getDoc, getDocs, orderBy, query } from "firebase/firestore";
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 type ProblemsTableProps = {
 
 };
 
 const ProblemsTable: React.FC<ProblemsTableProps> = () => {
+
+    const { solvedProblems } = useGetSolvedProblems();
+    console.log(solvedProblems);
 
     const [data, setData] = useState<{ id: string;[key: string]: any }[]>([]);
     const [loading, setLoading] = useState(true);
@@ -48,7 +52,10 @@ const ProblemsTable: React.FC<ProblemsTableProps> = () => {
 
     return (
         <>
-            {loading && <div>loading..</div>}
+            {loading && (<div className="flex items-center justify-center h-screen">
+                <span className="loader ml-80 mb-60"></span>
+            </div>)
+            }
 
             {!loading && <tbody className='text-white'>
                 {data.map((problem, idx) => {
@@ -60,9 +67,17 @@ const ProblemsTable: React.FC<ProblemsTableProps> = () => {
                                 : "text-dark-pink";
                     return (
                         <tr className={`${idx % 2 == 1 ? "bg-dark-layer-1" : ""}`} key={problem.id}>
-                            <th className='px-2 py-4 font-medium whitespace-nowrap text-dark-green-s'>
-                                <BsCheckCircle fontSize={"18"} width='18' />
-                            </th>
+                            {solvedProblems.includes(problem.id) ? (
+                                <th className='px-2 py-4 font-medium whitespace-nowrap text-dark-green-s'>
+                                    <BsCheckCircle fontSize={"18"} width='18' />
+                                </th>
+                            )
+                                :
+                                (<th className='px-2 py-4 font-medium whitespace-nowrap text-gray-300-s'>
+                                    <BsCheckCircle fontSize={"18"} width='18' />
+                                </th>)
+                            }
+
                             <td className='px-6 py-4'>
 
                                 {problem.link ? (
@@ -128,3 +143,31 @@ const ProblemsTable: React.FC<ProblemsTableProps> = () => {
     );
 };
 export default ProblemsTable;
+
+
+function useGetSolvedProblems() {
+    const [solvedProblems, setSolvedProblems] = useState<string[]>([]);
+    const [user] = useAuthState(auth);
+
+    useEffect(() => {
+        const fetchSolvedProblems = async () => {
+            if (!user) return;
+
+            try {
+                const userRef = doc(fireStore, "users", user.uid);
+                const userSnap = await getDoc(userRef);
+
+                if (userSnap.exists()) {
+                    const userData = userSnap.data();
+                    setSolvedProblems(userData.solvedProblems || []); // Defaults to an empty array
+                }
+            } catch (error) {
+                console.error("Error fetching solved problems:", error);
+            }
+        };
+
+        fetchSolvedProblems();
+    }, [user]);
+
+    return { solvedProblems };
+}
