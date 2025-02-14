@@ -3,6 +3,7 @@ import Image from "next/image";
 import Topbar from "./(components)/Topbar";
 import ProblemsTable from "./(components)/ProblemsTable";
 import useHasMounted from "./(components)/Hooks/useHashMounted";
+import Footer from "./(components)/Footer";
 
 export default function Home() {
 
@@ -19,7 +20,7 @@ export default function Home() {
       >
         &ldquo; QUALITY OVER QUANTITY &rdquo; 👇
       </h1>
-      <div className='relative overflow-x-auto mx-auto px-6 pb-10'>
+      <div className='relative overflow-x-auto mx-auto px-6 pb-20'>
         <table className='text-sm text-left text-gray-500 dark:text-gray-400 sm:w-7/12 w-full max-w-[1200px] mx-auto'>
           <thead className='text-xs text-gray-700 uppercase dark:text-gray-400 border-b '>
             <tr>
@@ -42,8 +43,11 @@ export default function Home() {
             </tr>
           </thead>
           <ProblemsTable />
+          
         </table>
+        
       </div>
+      <Footer />
     </main>
   );
 }

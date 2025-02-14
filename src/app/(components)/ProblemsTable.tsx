@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import { auth, fireStore } from '@/firebase/firebase';
 import { collection, doc, getDoc, getDocs, orderBy, query } from "firebase/firestore";
 import { useAuthState } from 'react-firebase-hooks/auth';
+import Footer from './Footer';
 
 type ProblemsTableProps = {
 
@@ -139,6 +140,7 @@ const ProblemsTable: React.FC<ProblemsTableProps> = () => {
                     </div>
                 </tfoot>)
             }
+            
         </>
     );
 };
