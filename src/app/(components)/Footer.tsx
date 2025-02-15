@@ -1,4 +1,4 @@
-import { FaFacebook, FaTwitter, FaLinkedin, FaInstagram } from "react-icons/fa";
+import { FaFacebook, FaTwitter, FaLinkedin } from "react-icons/fa";
 import { FiGithub } from "react-icons/fi";
 
 const Footer: React.FC = () => {
@@ -11,16 +11,16 @@ const Footer: React.FC = () => {
 
       {/* Social Media Icons */}
       <div className="relative z-10 flex justify-center space-x-6 my-2">
-        <a href="#" className="text-white text-2xl hover:text-gray-300 transition">
+        <a href="#" className="text-white text-2xl hover:text-gray-500 transition">
           <FaFacebook />
         </a>
-        <a href="#" className="text-white text-2xl hover:text-gray-300 transition">
+        <a href="#" className="text-white text-2xl hover:text-gray-500 transition">
           <FaTwitter />
         </a>
-        <a href="http://www.linkedin.com/in/sahil-srivastava-335a70227" target="_blank" className="text-white text-2xl hover:text-gray-300 transition">
+        <a href="http://www.linkedin.com/in/sahil-srivastava-335a70227" target="_blank" className="text-white text-2xl hover:text-gray-500 transition">
           <FaLinkedin />
         </a>
-        <a href="https://github.com/genius8855" target="_blank" className="text-white text-2xl hover:text-gray-300 transition">
+        <a href="https://github.com/genius8855" target="_blank" className="text-white text-2xl hover:text-gray-500 transition">
           <FiGithub />
         </a>
       </div>
