@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation'; // For App Router
@@ -20,16 +20,17 @@ type TopbarProps = {
 
 const Topbar: React.FC<TopbarProps> = ({ problemPage }) => {
 
-    // const hasMounted = useHasMounted();
-
-    // if(hasMounted) return null;
 
     const [user] = useAuthState(auth);
     const router = useRouter();
     const searchParams = useSearchParams();
+    // const [loader,setLoader] = useState(false);
+
+    const viewProfile = () => {
+        router.replace('/profile');
+    }
 
     const handleProblemChange = (isForward: boolean) => {
-        // const searchParams = useSearchParams(); // Use useSearchParams to get the query params
         console.log(problems)
     
         if (!searchParams) {
@@ -131,15 +132,15 @@ const Topbar: React.FC<TopbarProps> = ({ problemPage }) => {
                     )}
 
                     {user && (
-                        <div className='cursor-pointer group relative'>
+                        <div className='cursor-pointer group relative' onClick={viewProfile}>
                             <Image src='/avatar.png' alt='Avatar' width={30} height={30} className='rounded-full' />
-                            <div
+                            {/* <div
                                 className='absolute top-10 left-2/4 -translate-x-2/4  mx-auto bg-dark-layer-1 text-brand-orange p-2 rounded shadow-lg 
 								z-40 group-hover:scale-100 scale-0 
 								transition-all duration-300 ease-in-out'
                             >
                                 <p className='text-sm'>{user.email} </p>
-                            </div>
+                            </div> */}
                         </div>
                     )}
 

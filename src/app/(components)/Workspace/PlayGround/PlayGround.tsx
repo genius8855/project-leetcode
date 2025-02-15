@@ -5,7 +5,7 @@ import Split from 'react-split';
 import CodeMirror from "@uiw/react-codemirror";
 import {vscodeDark} from "@uiw/codemirror-theme-vscode";
 import {javascript} from "@codemirror/lang-javascript"
-// import {cpp} from "@codemirror/lang-cpp"
+import {cpp} from "@codemirror/lang-cpp"
 import EditorFooter from './PreferenceNav/EditorFooter';
 import { Problem } from '@/utils/types/problem';
 import { useAuthState } from 'react-firebase-hooks/auth';
@@ -59,7 +59,7 @@ const PlayGround:React.FC<PlayGroundProps> = ({problem, setSuccess, setSolved, s
 				}
 			}
 		}catch(error: any){
-			toast.error("Error while submitting the code");
+			toast.error("Error while submitting the code.");
 		}
 	}
 
