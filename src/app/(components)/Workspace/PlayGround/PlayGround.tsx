@@ -20,9 +20,10 @@ type PlayGroundProps = {
     problem: Problem;
 	setSuccess: React.Dispatch<React.SetStateAction<boolean>>;
 	setSolved: React.Dispatch<React.SetStateAction<boolean>>;
+	success: boolean;
 };
 
-const PlayGround:React.FC<PlayGroundProps> = ({problem, setSuccess, setSolved}) => {
+const PlayGround:React.FC<PlayGroundProps> = ({problem, setSuccess, setSolved, success}) => {
 
 	const [activeTestCase,setActiveTestCase] = useState(0);
 	let [userCode, setUserCode] = useState(problem.starterCode);
@@ -30,6 +31,10 @@ const PlayGround:React.FC<PlayGroundProps> = ({problem, setSuccess, setSolved}) 
 	const {
 		query: {pid},
 	} = useRouter();
+
+	// useEffect(() => {
+	// 	toast.success("ok");
+	// },[success]);
 
 	const handleSubmit = async () => {
 		if(!user) {
@@ -43,11 +48,7 @@ const PlayGround:React.FC<PlayGroundProps> = ({problem, setSuccess, setSolved}) 
 			if(typeof handler === "function") {
 				const success = handler(cb);
 				if(success) {
-					toast.success("Congrats! All test cases passed",{
-						position: "top-center",
-						theme: 'dark',
-						
-					});
+					toast.success("Congrats! All test cases passed");
 					setSuccess(true);
 					setTimeout(() => {
 						setSuccess(false);

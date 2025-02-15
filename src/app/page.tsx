@@ -4,13 +4,30 @@ import Topbar from "./(components)/Topbar";
 import ProblemsTable from "./(components)/ProblemsTable";
 import useHasMounted from "./(components)/Hooks/useHashMounted";
 import Footer from "./(components)/Footer";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/firebase/firebase";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Home() {
 
   const hasMounted = useHasMounted();
+  const [user, loading] = useAuthState(auth);
+  const router = useRouter();
 
-  if(!hasMounted) return null;
+  // UseEffect to Auto redirect to the authentication page if not logged in
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace("/auth"); 
+    }
+  }, [user, loading, router]);
+
+  if (!hasMounted) return null;
   
+  if(!user) return null;
+
   return (
     <main className="min-h-screen bg-dark-layer-2">
       <Topbar />
@@ -43,9 +60,9 @@ export default function Home() {
             </tr>
           </thead>
           <ProblemsTable />
-          
+
         </table>
-        
+
       </div>
       <Footer />
     </main>

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { auth } from '@/firebase/firebase';
 import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
+
 
 type SigninProps = {
 
@@ -17,9 +19,9 @@ const page: React.FC<SigninProps> = () => {
     const router = useRouter();
     //change
     useEffect(() => {
-        if (error) alert(error.message);
+        if (error) toast.error(error.message);
     }, [error]);
-    
+
 
     const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -31,9 +33,11 @@ const page: React.FC<SigninProps> = () => {
         try {
             const newUser = await signInWithEmailAndPassword(inputs.email, inputs.password);
             if (!newUser) return;
+            toast.success("Logged in Succefully");
             router.push('/');
         } catch (error: any) {
-            alert(error.message);
+            // alert(error.message);
+            toast.error("Something went wrong");
         }
     }
 

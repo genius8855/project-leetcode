@@ -1,3 +1,4 @@
+import { Fullscreen } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { AiOutlineFullscreen, AiOutlineFullscreenExit, AiOutlineSetting } from 'react-icons/ai';
 
@@ -59,7 +60,7 @@ const PreferenceNav:React.FC<PreferenceNavProps> = () => {
 					<div className='h-4 w-4 text-dark-gray-6 font-bold text-lg'>
 						{!isFullScreen ? <AiOutlineFullscreen /> : <AiOutlineFullscreenExit />}
 					</div>
-					<div className='preferenceBtn-tooltip'>Full Screen</div>
+					<div className='preferenceBtn-tooltip'>{isFullScreen ? 'Exit Full Screen' : 'Full Screen'}</div>
 				</button>
 			</div>
 		</div>
