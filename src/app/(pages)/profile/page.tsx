@@ -8,7 +8,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, fireStore } from '@/firebase/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-
+import useHasMounted from '@/app/(components)/Hooks/useHashMounted';
 
 type pageProps = {
 
@@ -18,21 +18,10 @@ const page: React.FC<pageProps> = () => {
 
     const { solvedProblems, likedProblems, dislikedProblems, starredProblems, userName, userEmail } = useGetUserData();
     const [user, loading] = useAuthState(auth);
+    const router = useRouter();
+    const hasMounted = useHasMounted();
 
-    // const user = {
-    //     name: "John Doe",
-    //     email: "johndoe@example.com",
-    //     solved: 120,
-    //     easySolved: 50,
-    //     mediumSolved: 40,
-    //     hardSolved: 0,
-    //     likedProblems: [],
-    //     dislikedProblems: ["Graph Traversal"],
-    //     starredProblems: ["Dijkstra's Algorithm"],
-    //     solvedProblems: ["Palindrome Number", "Merge Intervals", "LRU Cache"],
-    // };
-
-    const difficulty = {
+    const difficulty: Record<string, "Easy" | "Medium" | "Hard"> = {
         "two-sum": "Easy",
         "reverse-linked-list": "Hard",
         "jump-game": "Medium",
@@ -45,8 +34,12 @@ const page: React.FC<pageProps> = () => {
         "subsets": "Medium",
     };
 
-    const count = { Easy: 0, Medium: 0, Hard: 0 };
-    const router = useRouter();
+    const count: Record<"Easy" | "Medium" | "Hard", number> = {
+        Easy: 0,
+        Medium: 0,
+        Hard: 0
+    };
+    
 
     solvedProblems.forEach(problem => {
         const level = difficulty[problem];
@@ -69,81 +62,80 @@ const page: React.FC<pageProps> = () => {
         if (!loading && !user) {
           router.replace("/auth"); 
         }
-      }, [user, loading, router]);
+    }, [user, loading, router]);
 
-    
-
+    if(!hasMounted) {
+        return null;
+    }
 
     return (<div className='h-screen '>
         <Topbar />
-        <div className="min-h-screen bg-dark-layer-2 text-white p-8 flex items-center justify-center">
+            <div className="min-h-screen bg-dark-layer-2 text-white p-8 flex items-center justify-center">
+                <motion.div
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="w-2/3 space-y-8"
+                >
+                    <div className="bg-dark-layer-1 p-8 rounded-2xl shadow-2xl text-center border border-gray-700">
+                        <h1 className="text-4xl font-extrabold">{userName}</h1>
+                        <p className="text-gray-300 text-lg mt-2">{userEmail}</p>
+                    </div>
 
-            {/* Right Side - User Info */}
-            <motion.div
-                initial={{ opacity: 0, x: 50 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="w-2/3 space-y-8"
-            >
-                <div className="bg-dark-layer-1 p-8 rounded-2xl shadow-2xl text-center border border-gray-700">
-                    <h1 className="text-4xl font-extrabold">{userName}</h1>
-                    <p className="text-gray-300 text-lg mt-2">{userEmail}</p>
-                </div>
+                    {/* Pie Chart */}
+                    <div className="flex justify-center">
+                        <PieChart width={300} height={300}>
+                            <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
+                                {data.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                ))}
+                            </Pie>
+                            <Tooltip />
+                            <Legend />
+                        </PieChart>
+                    </div>
 
-                {/* Pie Chart */}
-                <div className="flex justify-center">
-                    <PieChart width={300} height={300}>
-                        <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
-                            {data.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                        </Pie>
-                        <Tooltip />
-                        <Legend />
-                    </PieChart>
-                </div>
-
-                {[
-                    { title: "Liked Problems", problems: likedProblems },
-                    { title: "Starred Problems", problems: starredProblems },
-                    { title: "Disliked Problems", problems: dislikedProblems },
-                ].map((section, index) => (
-                    <motion.div
-                        key={index}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.2 }}
-                        className="w-full bg-dark-layer-2 p-6 rounded-xl shadow-xl border border-gray-700"
-                    >
-                        <h2 className="text-2xl font-bold text-white">{section.title}</h2>
-                        {
-                            section.problems.length === 0 ? (
-                                <div className=' text-gray-600 pl-1'>
-                                    {index === 0 ? "You have not liked any problem" : index === 1 ? "You have not starred any problem" : "You have not disliked any problem"}
-                                </div>
-                            )
-                                :
-                                (
-                                    <ul className="mt-3 space-y-2">
-                                        {section.problems.map((problem, idx) => (
-                                            <motion.li
-                                                key={idx}
-                                                initial={{ opacity: 0, x: -20 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: idx * 0.1 }}
-                                                className="bg-dark-layer-1 p-4  rounded-tr-full rounded-bl-full shadow-md hover:bg-gray-600 transition text-center text-lg cursor-pointer"
-                                                onClick={goToWorkspace}
-                                            >
-                                                {problem}
-                                            </motion.li>
-                                        ))}
-                                    </ul>
+                    {[
+                        { title: "Liked Problems", problems: likedProblems },
+                        { title: "Starred Problems", problems: starredProblems },
+                        { title: "Disliked Problems", problems: dislikedProblems },
+                    ].map((section, index) => (
+                        <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.2 }}
+                            className="w-full bg-dark-layer-2 p-6 rounded-xl shadow-xl border border-gray-700"
+                        >
+                            <h2 className="text-2xl font-bold text-white">{section.title}</h2>
+                            {
+                                section.problems.length === 0 ? (
+                                    <div className=' text-gray-600 pl-1'>
+                                        {index === 0 ? "You have not liked any problem" : index === 1 ? "You have not starred any problem" : "You have not disliked any problem"}
+                                    </div>
                                 )
-                        }
-                    </motion.div>
-                ))}
-            </motion.div>
+                                    :
+                                    (
+                                        <ul className="mt-3 space-y-2">
+                                            {section.problems.map((problem, idx) => (
+                                                <motion.li
+                                                    key={idx}
+                                                    initial={{ opacity: 0, x: -20 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    transition={{ delay: idx * 0.1 }}
+                                                    className="bg-dark-layer-1 p-4  rounded-tr-full rounded-bl-full shadow-md hover:bg-gray-600 transition text-center text-lg cursor-pointer"
+                                                    onClick={goToWorkspace}
+                                                >
+                                                    {problem}
+                                                </motion.li>
+                                            ))}
+                                        </ul>
+                                    )
+                            }
+                        </motion.div>
+                    ))}
+                </motion.div>
+            </div>
         </div>
-    </div>
     );
 }
 export default page;
