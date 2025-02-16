@@ -54,8 +54,8 @@ const page: React.FC<pageProps> = () => {
         {name: "Not Solved", value: notSolved, color: "#4b5563"},
     ];
 
-    const goToWorkspace = () => {
-        router.push(`problems/{problem}`);
+    const goToWorkspace = (problem: string) => {
+        router.push(`problems/${problem}`);
     }
 
     useEffect(() => {
@@ -123,7 +123,7 @@ const page: React.FC<pageProps> = () => {
                                                     animate={{ opacity: 1, x: 0 }}
                                                     transition={{ delay: idx * 0.1 }}
                                                     className="bg-dark-layer-1 p-4  rounded-tr-full rounded-bl-full shadow-md hover:bg-gray-600 transition text-center text-lg cursor-pointer"
-                                                    onClick={goToWorkspace}
+                                                    onClick={() => goToWorkspace(problem)}
                                                 >
                                                     {problem}
                                                 </motion.li>
